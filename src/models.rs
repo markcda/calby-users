@@ -1,5 +1,7 @@
+use diesel::Queryable;
+
 #[derive(Queryable)]
-pub struct Post {
+pub struct User {
   pub id: i64,
   pub nick: String,
   pub displayed_name: String,
