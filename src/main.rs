@@ -3,6 +3,7 @@
 extern crate diesel;
 
 pub mod data;
+pub mod schema;
 pub mod tonic_logic;
 
 use std::env;
