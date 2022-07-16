@@ -1,6 +1,6 @@
 [package]
 name = "calby-users"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [profile.release]
@@ -11,8 +11,14 @@ panic = 'abort'
 
 [dependencies]
 dotenv = "0.15.0"
-tokio = { version = "0.2", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
 diesel = { version = "1.4.4", features = ["postgres"] }
-tokio-diesel = "0.3.0"
-r2d2 = "0.8.10"
-r2d2_postgres = "0.18.1"
+bb8 = "0.7"
+bb8-diesel = "0.2.1"
+tonic = "0.7"
+prost = "0.10"
+futures-core = "0.3"
+futures-util = "0.3"
+
+[build-dependencies]
+tonic-build = "0.7"

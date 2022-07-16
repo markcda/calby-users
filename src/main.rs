@@ -1,24 +1,31 @@
+//! Микросервис, отвечающий за управление пользователями.
 #[macro_use]
 extern crate diesel;
 
-pub mod schema;
-pub mod models;
+pub mod data;
+pub mod tonic_logic;
 
-use dotenv::dotenv;
-use std::{env, net::SocketAddr};
-use diesel::{r2d2::ConnectionManager, PgConnection, QueryDsl};
-use tokio_diesel::*;
+use std::env;
+use tonic::transport::Server;
+use tonic_logic::UsersService;
+use tonic_logic::users::users_server::UsersServer;
 
 type MResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+/// Создаёт пул соединений с базой данных и запускает микросервис.
 #[tokio::main]
 async fn main() -> MResult<()> {
-  dotenv()?;
-  let _addr: SocketAddr = env::var("CALBY_USERS_ADDR")?.parse()?;
-  println!("{}", env::var("CALBY_DB_AUTH")?);
-  let manager = ConnectionManager::<PgConnection>::new(env::var("DATABASE_URL")?);
-  let pool = r2d2::Pool::builder().max_size(15).build(manager)?;
-  let num_users: i64 = schema::users::table.count().get_result_async(&pool).await?;
-  println!("There are {:?} users.", num_users);
+  dotenv::dotenv()?;
+  let addr: std::net::SocketAddr = env::var("CALBY_USERS_ADDR")?.parse()?;
+  let manager = bb8_diesel
+                  ::DieselConnectionManager
+                  ::<diesel::pg::PgConnection>
+                  ::new(
+    env::var("DATABASE_URL")?
+  );
+  let pool = bb8::Pool::builder().max_size(15).build(manager).await?;
+  let users = UsersService { db: pool };
+  let svc = UsersServer::new(users);
+  Server::builder().add_service(svc).serve(addr).await?;
   Ok(())
 }

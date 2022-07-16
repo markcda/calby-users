@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package users;
+
+message CreateUserRequest {
+  string nick = 1;
+  bytes pass = 2;
+}
+
+message ShortenedUserData {
+  int32 id = 1;
+}
+
+service Users {
+  // Создаёт пользователя.
+  rpc CreateUser(CreateUserRequest) returns (ShortenedUserData) {}
+}
